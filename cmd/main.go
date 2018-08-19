@@ -1,16 +1,14 @@
 package main
 
 import (
-	"os"
-	"github.com/gwuhaolin/gfwlist4go/gfwlist"
 	"github.com/gwuhaolin/gfwlist4go/pac"
-	"io/ioutil"
-	"path"
 	"log"
+	"os"
+	"path"
 )
 
 const (
-	OUTPUT = "proxy.pac"
+	OUTPUT = "proxy.js"
 )
 
 func main() {
@@ -18,17 +16,7 @@ func main() {
 	if len(os.Args) == 2 {
 		proxy = os.Args[1]
 	}
-	blankList, err := gfwlist.BlankList()
-	if err != nil {
-		log.Fatal("获取被墙名单失败", err)
-	}
-	doc := pac.Pac{
-		BlankList: blankList,
-		WhiteList: gfwlist.WHITE_LIST,
-		Proxy:     proxy,
-	}
-	str := doc.String()
-	err = ioutil.WriteFile(OUTPUT, []byte(str), 0644)
+	err := pac.SavePac(proxy, OUTPUT)
 	if err != nil {
 		log.Fatal("写文件失败", err)
 	}

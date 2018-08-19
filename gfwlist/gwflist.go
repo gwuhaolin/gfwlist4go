@@ -1,14 +1,14 @@
 package gfwlist
 
 import (
-	"net/http"
-	"io"
-	"encoding/base64"
 	"bufio"
-	"strings"
+	"encoding/base64"
 	"fmt"
-	"net/url"
+	"io"
 	"net"
+	"net/http"
+	"net/url"
+	"strings"
 )
 
 var (

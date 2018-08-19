@@ -1,13 +1,14 @@
 package pac
 
 import (
-	"text/template"
 	"bytes"
+	"github.com/gwuhaolin/gfwlist4go/gfwlist"
+	"io/ioutil"
+	"text/template"
 )
 
 type Pac struct {
 	BlankList []string
-	WhiteList []string
 	Proxy     string
 }
 
@@ -22,25 +23,19 @@ var (
 
 func init() {
 	tmpl = template.New("")
-	tmpl = template.Must(tmpl.Parse(`
-var HOST_MAP = {
-    {{ range $host, $value := .HostMap }}'{{ $host }}': {{ $value }},
-    {{ end }}
+	tmpl = template.Must(tmpl.Parse(`var HOST_MAP = {
+{{ range $host, $value := .HostMap }}'{{ $host }}':{{ $value }},{{ end }}
 };
 
 var PROXY = '{{ .Proxy }}';
-var DIRECT = 'DIRECT;';
 var PROXY_DIRECT = PROXY + DIRECT;
 var DIRECT_PROXY = DIRECT + PROXY;
-function proxyForIndex(index) {
-    switch (index) {
-        case 0:
-            return DIRECT;
-        case 1:
-            return PROXY_DIRECT;
-        default:
-            return DIRECT_PROXY
-    }
+function proxyForIndex(val) {
+	if(val){
+		return PROXY_DIRECT;
+	}else{
+		return DIRECT_PROXY;
+	}
 }
 
 function FindProxyForURL(_, host) {
@@ -57,19 +52,34 @@ function FindProxyForURL(_, host) {
             }
         }
     }
+	return DIRECT_PROXY;
 }`))
 }
 
-func (pac *Pac) String() string {
-	hostMap := make(map[string]int, len(pac.BlankList)+len(pac.WhiteList))
-	for _, host := range pac.BlankList {
+func FetchPac(proxy string) (string, error) {
+	blankList, err := gfwlist.BlankList()
+	if err != nil {
+		return "", err
+	}
+	doc := Pac{
+		BlankList: blankList,
+		Proxy:     proxy,
+	}
+	hostMap := make(map[string]int, len(doc.BlankList))
+	for _, host := range doc.BlankList {
 		hostMap[host] = 1
 	}
-	for _, host := range pac.WhiteList {
-		hostMap[host] = 0
-	}
-	tmplParams := &templateParams{hostMap, pac.Proxy + ";", }
+	tmplParams := &templateParams{hostMap, doc.Proxy + ";"}
 	buf := &bytes.Buffer{}
 	tmpl.Execute(buf, tmplParams)
-	return buf.String()
+	return buf.String(), nil
+}
+
+func SavePac(proxy string, filename string) error {
+	str, err := FetchPac(proxy)
+	err = ioutil.WriteFile(filename, []byte(str), 0644)
+	if err != nil {
+		return err
+	}
+	return nil
 }

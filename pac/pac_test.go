@@ -1,8 +1,8 @@
 package pac
 
 import (
-	"testing"
 	"github.com/gwuhaolin/gfwlist4go/gfwlist"
+	"testing"
 )
 
 func TestMake(t *testing.T) {
