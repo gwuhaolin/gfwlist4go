@@ -28,8 +28,8 @@ func init() {
 };
 
 var PROXY = '{{ .Proxy }}';
-var PROXY_DIRECT = PROXY + DIRECT;
-var DIRECT_PROXY = DIRECT + PROXY;
+var PROXY_DIRECT = PROXY + 'DIRECT';
+var DIRECT_PROXY = 'DIRECT' + PROXY;
 function proxyForIndex(val) {
 	if(val){
 		return PROXY_DIRECT;
