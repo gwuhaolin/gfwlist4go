@@ -12,18 +12,32 @@ import (
 )
 
 var (
-	GFWLIST_URL = "https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt"
+	gfwlistUrlList = []string{
+		"https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt",
+		"https://pagure.io/gfwlist/raw/master/f/gfwlist.txt",
+		"http://repo.or.cz/gfwlist.git/blob_plain/HEAD:/gfwlist.txt",
+		"https://bitbucket.org/gfwlist/gfwlist/raw/HEAD/gfwlist.txt",
+		"https://gitlab.com/gfwlist/gfwlist/raw/master/gfwlist.txt",
+		"https://git.tuxfamily.org/gfwlist/gfwlist.git/plain/gfwlist.txt",
+	}
 )
 
 func fetch() ([]string, error) {
-	res, err := http.Get(GFWLIST_URL)
+	var res *http.Response
+	var err error
+	for _, gfwlistUrl := range gfwlistUrlList {
+		res, err = http.Get(gfwlistUrl)
+		if err == nil {
+			break
+		}
+	}
 	if err != nil {
 		return nil, err
 	}
 	defer res.Body.Close()
 	decoder := base64.NewDecoder(base64.StdEncoding, res.Body)
 	reader := bufio.NewReader(decoder)
-	list := []string{}
+	var list []string
 	for {
 		line, _, err := reader.ReadLine()
 		if err == io.EOF {
