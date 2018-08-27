@@ -10,7 +10,7 @@ func TestMake(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	pac := Pac{
+	pac := pac{
 		BlankList: blankList,
 		WhiteList: gfwlist.WHITE_LIST,
 		Proxy:     "SOCKS5 127.0.0.1:1080",
